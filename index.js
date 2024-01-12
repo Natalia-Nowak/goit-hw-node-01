@@ -1,10 +1,41 @@
 const contactsDb = require("./contacts.js");
+const { Command } = require("commander");
 
-const contactsAdd = contactsDb.addContact(
-  "Amanda",
-  "amanda@gmail.com",
-  "90890890"
-);
+const program = new Command();
+program
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
 
-const contacts = contactsDb.listContacts();
-console.log(contacts);
+program.parse(process.argv);
+
+const argv = program.opts();
+
+// TODO: refaktor
+function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case "list":
+      console.table(contactsDb.listContacts());
+
+      break;
+
+    case "get":
+      console.log(contactsDb.getContactById(id));
+      break;
+
+    case "add":
+      contactsDb.addContact(name, email, phone);
+      break;
+
+    case "remove":
+      contactsDb.removeContact(id);
+      break;
+
+    default:
+      console.warn("\x1B[31m Unknown action type!");
+  }
+}
+
+invokeAction(argv);
